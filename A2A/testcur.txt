@@ -1,0 +1,27 @@
+# Test helloworld_client  using curl instead of using curl
+curl -s http://127.0.0.1:8080/jsonrpc \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "curl-1",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "role": "user",
+        "messageId": "123",
+        "parts": [
+          {
+            "kind": "text",
+            "text": "hello remote server"
+          },
+          {
+            "kind": "data",
+            "data": {
+              "key": "value",
+              "number": 1
+            }
+          }
+        ]
+      }
+    }
+  }'

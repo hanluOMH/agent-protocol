@@ -25,7 +25,10 @@ add_subdirectory(server)
 add_subdirectory(transport)
 add_subdirectory(utils)
 
-target_link_libraries(a2a_cpp PRIVATE third_party_headers dl pthread)
+target_link_libraries(a2a_cpp PRIVATE third_party_headers)
+if(NOT APPLE)
+    target_link_libraries(a2a_cpp PRIVATE dl pthread)
+endif()
 target_link_libraries(a2a_cpp PUBLIC nlohmann_json::nlohmann_json)
 
 if (A2A_HTTP AND CURL_FOUND)

@@ -80,7 +80,7 @@ public:
      * @return TaskPushNotificationConfig
      */
     TaskPushNotificationConfig OnSetTaskPushNotificationConfig(const TaskPushNotificationConfig& cfg,
-                                                               const ServerCallContext* ctx);
+                                                               const ServerCallContext* ctx) override;
 
     /**
      * @brief retrive a task push notification configuration of a task
@@ -90,7 +90,7 @@ public:
      * @return TaskPushNotificationConfig
      */
     TaskPushNotificationConfig OnGetTaskPushNotificationConfig(const GetTaskPushNotificationConfigParams& params,
-                                                               const ServerCallContext* ctx);
+                                                               const ServerCallContext* ctx) override;
 
     /**
      * @brief retrive all task push notification configurations of a task
@@ -100,7 +100,7 @@ public:
      * @return vector of TaskPushNotificationConfig
      */
     std::vector<TaskPushNotificationConfig> OnListTaskPushNotificationConfigs(
-        const ListTaskPushNotificationConfigParams& params, const ServerCallContext* ctx);
+        const ListTaskPushNotificationConfigParams& params, const ServerCallContext* ctx) override;
 
     /**
      * @brief delete a task push notification configuration of a task
@@ -109,7 +109,7 @@ public:
      * @param[in] ctx server call context
      */
     void OnDeleteTaskPushNotificationConfig(const DeleteTaskPushNotificationConfigParams& params,
-                                            const ServerCallContext* ctx);
+                                            const ServerCallContext* ctx) override;
 
     /**
      * @brief retrive agent card

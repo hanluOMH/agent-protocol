@@ -1,29 +1,13 @@
 #!/usr/bin/env bash
 
 # Simple unified build entry for a2a_cpp.
-#
-# Features (current and planned):
-#   - Choose build type: Debug / Release (default: Release)
-#   - Build core library
-#   - Reserved switches for examples and unit tests
-#
-# Usage examples:
-#   ./build.sh                    # Release build, core lib only
-#   ./build.sh -t Debug           # Debug build
-#
 
 set -euo pipefail
 
 # Default options
 BUILD_TYPE="Release"
 BUILD_DIR="build"
-GENERATOR=""
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/scripts/install_deps.sh"
-
-install_dependencies
-check_dependencies
 
 print_help() {
   cat <<EOF
@@ -74,8 +58,26 @@ case "${BUILD_TYPE}" in
     ;;
 esac
 
-# Determine optimal job count for Linux (CPU cores + 1, but max 8 to avoid memory issues)
-CPU_CORES=$(nproc)
+source "${SCRIPT_DIR}/scripts/install_deps.sh"
+
+install_dependencies
+check_dependencies
+
+# Determine optimal job count for the current platform.
+if command -v nproc >/dev/null 2>&1; then
+  CPU_CORES=$(nproc)
+elif command -v sysctl >/dev/null 2>&1; then
+  CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || true)
+elif command -v getconf >/dev/null 2>&1; then
+  CPU_CORES=$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)
+else
+  CPU_CORES=4
+fi
+
+if [[ -z "${CPU_CORES:-}" ]] || ! [[ "${CPU_CORES}" =~ ^[0-9]+$ ]]; then
+  CPU_CORES=4
+fi
+
 OPTIMAL_JOBS=$((CPU_CORES + 1))
 if [[ ${OPTIMAL_JOBS} -gt 8 ]]; then
   OPTIMAL_JOBS=8
@@ -95,3 +97,5 @@ echo "[INFO] Building with ${OPTIMAL_JOBS} parallel jobs (detected ${CPU_CORES} 
 cmake --build . -j${OPTIMAL_JOBS}
 
 echo "[INFO] Build finished. Configuration: ${BUILD_TYPE}. Build dir: ${BUILD_DIR_ABS}"
+echo "[INFO] Libraries: ${SOURCE_DIR}/output/lib"
+echo "[INFO] Binaries:  ${SOURCE_DIR}/output/bin"

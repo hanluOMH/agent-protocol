@@ -13,23 +13,40 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # 编译选项配置
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -D_FORTIFY_SOURCE=2 -DDEBUG -rdynamic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -D_FORTIFY_SOURCE=2 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -D_FORTIFY_SOURCE=2")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
+    if(APPLE)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-x")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-x")
+    else()
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
+    endif()
 endif()
 
 # 通用编译选项
-set(CMAKE_FLAGS_PUBLIC " -Wall -Werror -Wfloat-equal -Wtrampolines -g -rdynamic \
--fno-strict-aliasing -fstack-protector-strong -fPIE -pie -fPIC")
+set(CMAKE_FLAGS_PUBLIC " -Wall -Werror -Wfloat-equal -g \
+-fno-strict-aliasing -fstack-protector-strong -fPIC")
+if(NOT APPLE)
+    set(CMAKE_FLAGS_PUBLIC "${CMAKE_FLAGS_PUBLIC} -Wtrampolines")
+endif()
+if(NOT APPLE)
+    set(CMAKE_FLAGS_PUBLIC "${CMAKE_FLAGS_PUBLIC} -rdynamic -fPIE -pie")
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_FLAGS_PUBLIC}")
-set(CMAKE_SKIP_RPATH TRUE)
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH TRUE)
+else()
+    set(CMAKE_SKIP_RPATH TRUE)
+endif()
 
 # 链接选项
-add_link_options(-Wl,-z,noexecstack,-z,relro,-z,now)
+if(NOT APPLE)
+    add_link_options(-Wl,-z,noexecstack,-z,relro,-z,now)
+endif()
 
 # 构建选项
 option(BUILD_SHARED_LIBS "Build shared librarier" ON)
